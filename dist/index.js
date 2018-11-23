@@ -39,6 +39,7 @@ exports['default'] = function (config) {
 
   var basePath = undefined;
   var router = undefined;
+  var cacheStore = {};
 
   var parserPromise = new _Promise(function (resolve) {
     _swaggerParser2['default'].dereference(config.swaggerFile, function (err, api) {
@@ -80,7 +81,8 @@ exports['default'] = function (config) {
         path = '/' + path;
       }
 
-      var matchingRoute = router.match('/' + method + path);
+      var hashKey = method + path;
+      var matchingRoute = router.match('/' + hashKey);
 
       if (!matchingRoute) return next();
 
@@ -89,7 +91,10 @@ exports['default'] = function (config) {
       }
 
       try {
-        var response = matchingRoute.fn();
+        var response = cacheStore[hashKey];
+        if (!response) {
+          response = cacheStore[hashKey] = matchingRoute.fn();
+        }
         res.setHeader('Content-Type', 'application/json');
         res.write(response !== null ? JSON.stringify(response) : '');
       } catch (e) {

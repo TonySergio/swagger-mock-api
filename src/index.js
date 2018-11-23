@@ -17,6 +17,7 @@ export default function(config) {
 
   let basePath;
   let router;
+  let cacheStore = {};
 
   let parserPromise = new Promise((resolve) => {
     parser.dereference(config.swaggerFile, function(err, api) {
@@ -58,7 +59,8 @@ export default function(config) {
         path = '/' + path;
       }
 
-      const matchingRoute = router.match('/' + method + path);
+      let hashKey = method + path;
+      const matchingRoute = router.match('/' + hashKey);
 
       if (!matchingRoute) return next();
 
@@ -67,7 +69,10 @@ export default function(config) {
       }
 
       try {
-        const response = matchingRoute.fn();
+        let response = cacheStore[hashKey];
+        if (!response) {
+          response = cacheStore[hashKey] = matchingRoute.fn();
+        }
         res.setHeader('Content-Type', 'application/json');
         res.write(response !== null ? JSON.stringify(response) : '');
       } catch(e) {
