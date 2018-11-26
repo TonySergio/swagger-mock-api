@@ -76,8 +76,10 @@ var Parser = (function () {
                 res = chance[node['x-chance-type']](node['x-type-options']);
             } catch (er) {
                 console.error('Problem with type: ' + node['x-chance-type']);
+                console.log('Node: ' + node);
                 console.error(er);
             }
+            return res;
 
             return this.getParser(node).parse(node);
         }
