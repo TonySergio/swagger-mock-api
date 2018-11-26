@@ -71,15 +71,17 @@ var Parser = (function () {
                 return node['x-type-value'];
             }
 
-            if (node['x-chance-type']) var res = '';
-            try {
-                res = chance[node['x-chance-type']](node['x-type-options']);
-            } catch (er) {
-                console.error('Problem with type: ' + node['x-chance-type']);
-                console.log('Node: ' + node);
-                console.error(er);
+            if (node['x-chance-type']) {
+                var res = '';
+                try {
+                    res = chance[node['x-chance-type']](node['x-type-options']);
+                } catch (er) {
+                    console.error('Problem with type: ' + node['x-chance-type']);
+                    console.dir(node);
+                    console.error(er);
+                }
+                return res;
             }
-            return res;
 
             return this.getParser(node).parse(node);
         }
