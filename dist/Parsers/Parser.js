@@ -66,7 +66,7 @@ var Parser = (function () {
         }
     }, {
         key: 'parse',
-        value: function parse(node) {
+        value: function parse(node, additional) {
             if (node['x-chance-type'] === 'fixed') {
                 return node['x-type-value'];
             }
@@ -83,7 +83,7 @@ var Parser = (function () {
                 return res;
             }
 
-            return this.getParser(node).parse(node);
+            return this.getParser(node).parse(node, additional);
         }
     }, {
         key: 'parsers',

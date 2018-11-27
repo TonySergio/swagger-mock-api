@@ -46,7 +46,7 @@ var ArrayParser = (function () {
             var ret = [];
 
             for (var i = 0; i < iterations; i++) {
-                ret.push(this.parser.parse(items));
+                ret.push(this.parser.parse(items, { array: ret }));
             }
 
             return ret;

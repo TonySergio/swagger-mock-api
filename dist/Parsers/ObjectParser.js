@@ -7,7 +7,7 @@ var _classCallCheck = require('babel-runtime/helpers/class-call-check')['default
 var _interopRequireDefault = require('babel-runtime/helpers/interop-require-default')['default'];
 
 Object.defineProperty(exports, '__esModule', {
-    value: true
+  value: true
 });
 
 var _chance = require('chance');
@@ -21,38 +21,64 @@ var _hoek2 = _interopRequireDefault(_hoek);
 var chance = new _chance2['default']();
 
 var ObjectParser = (function () {
-    function ObjectParser(parser) {
-        _classCallCheck(this, ObjectParser);
+  function ObjectParser(parser) {
+    _classCallCheck(this, ObjectParser);
 
-        this.parser = parser;
+    this.parser = parser;
+  }
+
+  _createClass(ObjectParser, [{
+    key: 'canParse',
+    value: function canParse(node) {
+      return !!node.properties;
     }
+  }, {
+    key: 'parse',
+    value: function parse(node, additional) {
+      return this.generateObject(node, additional);
+    }
+  }, {
+    key: 'generateObject',
+    value: function generateObject(node, additional) {
+      var _this = this;
 
-    _createClass(ObjectParser, [{
-        key: 'canParse',
-        value: function canParse(node) {
-            return !!node.properties;
-        }
-    }, {
-        key: 'parse',
-        value: function parse(node) {
-            return this.generateObject(node);
-        }
-    }, {
-        key: 'generateObject',
-        value: function generateObject(node) {
-            var ret = {};
-            var schema = _hoek2['default'].clone(node);
-            schema = schema.properties || schema;
+      var ret = {};
+      var schema = _hoek2['default'].clone(node);
+      schema = schema.properties || schema;
+      var array = additional && additional.array;
 
-            for (var k in schema) {
-                ret[k] = this.parser.parse(schema[k]);
+      var _loop = function (k) {
+        var isUnique = schema[k].format && schema[k].format == 'uuid';
+        var metUnique = false;
+
+        if (isUnique && array) {
+          var _loop2 = function () {
+            var curentVal = _this.parser.parse(schema[k]);
+            if (!array.find(function (it) {
+              return it[k] == curentVal;
+            })) {
+              metUnique = true;
+              ret[k] = curentVal;
             }
+          };
 
-            return ret;
+          while (!metUnique) {
+            _loop2();
+          }
+        } else {
+          ret[k] = _this.parser.parse(schema[k]);
         }
-    }]);
+      };
 
-    return ObjectParser;
+      for (var k in schema) {
+        _loop(k);
+      }
+
+      return ret;
+    }
+  }]);
+
+  return ObjectParser;
 })();
 
 exports['default'] = ObjectParser;
